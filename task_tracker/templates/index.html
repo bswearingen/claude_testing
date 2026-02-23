@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Task Tracker</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="page">
+      <header class="page-header">
+        <div>
+          <h1>Personal Task Tracker</h1>
+          <p class="tagline">Capture, organize, and complete your todos.</p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card new-task-card">
+          <h2>Add a task</h2>
+          <form method="post" action="/tasks" class="form-grid">
+            <div class="field">
+              <label for="title">Title</label>
+              <input
+                id="title"
+                name="title"
+                type="text"
+                placeholder="What do you need to do?"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="description">Details (optional)</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="2"
+                placeholder="Add notes, links, or context."
+              ></textarea>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn primary">Add task</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <header class="card-header">
+            <h2>Your tasks</h2>
+            <form method="get" action="/" class="filters">
+              <div class="field">
+                <input
+                  type="search"
+                  name="search"
+                  value="{{ search }}"
+                  placeholder="Search by title or description"
+                />
+              </div>
+              <div class="field">
+                <select name="status">
+                  <option value="all" {% if status == "all" %}selected{% endif %}>
+                    All
+                  </option>
+                  <option value="active" {% if status == "active" %}selected{% endif %}>
+                    Active
+                  </option>
+                  <option value="completed" {% if status == "completed" %}selected{% endif %}>
+                    Completed
+                  </option>
+                </select>
+              </div>
+              <button type="submit" class="btn subtle">Apply</button>
+            </form>
+          </header>
+
+          {% if tasks %}
+          <ul class="task-list">
+            {% for task in tasks %}
+            <li class="task-item {% if task['is_done'] %}done{% endif %}">
+              <div class="task-main">
+                <form method="post" action="/tasks/{{ task['id'] }}/toggle">
+                  <button type="submit" class="checkbox" aria-label="Toggle task">
+                    {% if task['is_done'] %}✓{% endif %}
+                  </button>
+                </form>
+                <div class="task-text">
+                  <div class="task-title">{{ task["title"] }}</div>
+                  {% if task["description"] %}
+                  <div class="task-description">{{ task["description"] }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <form method="post" action="/tasks/{{ task['id'] }}/delete">
+                <button type="submit" class="icon-button" aria-label="Delete task">
+                  ✕
+                </button>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="empty-state">
+            No tasks yet. Add your first one to get started.
+          </p>
+          {% endif %}
+        </section>
+      </main>
+
+      <footer class="page-footer">
+        <span>Built with FastAPI &amp; SQLite</span>
+      </footer>
+    </div>
+  </body>
+</html>
+
